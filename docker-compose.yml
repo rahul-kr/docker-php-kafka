@@ -1,0 +1,77 @@
+version: "2.1"
+
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    env_file: ./conf/.env
+    volumes:
+      - ./db-data:/var/lib/mysql
+    networks:
+      - internal
+
+  drupal:
+    image: drupal
+    build: ./conf
+    # build: ./conf/php
+    container_name: drupal
+    depends_on:
+      - mysql
+    restart: unless-stopped
+    networks:
+      - internal
+      - external
+    volumes:
+      - .:/var/www/
+
+  nginxWeb:
+    image: nginx:1.17.4-alpine
+    container_name: nginxWeb
+    depends_on:
+      - drupal
+    restart: unless-stopped
+    ports:
+      - 8089:80
+    volumes:
+      - .:/var/www
+      - ./conf/nginx-conf:/etc/nginx/conf.d
+    networks:
+      - external
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    # container_name: zookeeper
+    ports:
+      - 2181:2181
+    networks:
+      - internal
+      - external
+
+  kafka:
+    image: wurstmeister/kafka
+    # container_name: kafka
+    ports:
+      - 9092:9092
+    networks:
+      - internal
+      - external
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_CREATE_TOPICS: "watchdog:1:1"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+
+networks:
+  external:
+    driver: bridge
+  internal:
+    driver: bridge
+
+volumes:
+  drupal-data:
+  db-data:
+    
