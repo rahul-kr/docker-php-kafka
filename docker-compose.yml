@@ -15,7 +15,6 @@ services:
   drupal:
     image: drupal
     build: ./conf
-    # build: ./conf/php
     container_name: drupal
     depends_on:
       - mysql
@@ -42,7 +41,6 @@ services:
 
   zookeeper:
     image: wurstmeister/zookeeper
-    # container_name: zookeeper
     ports:
       - 2181:2181
     networks:
@@ -51,7 +49,6 @@ services:
 
   kafka:
     image: wurstmeister/kafka
-    # container_name: kafka
     ports:
       - 9092:9092
     networks:

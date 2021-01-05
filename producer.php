@@ -1,5 +1,4 @@
 <?php
-// phpinfo();die('ad');
 
 $producer = new \RdKafka\Producer();
 $producer->setLogLevel(LOG_DEBUG);
@@ -10,7 +9,6 @@ if ($producer->addBrokers("kafka:9092") < 1) {
 }
 
 $topic = $producer->newTopic("watchdog");
-// print_r($producer);die('sfsd');
 
 if (!$producer->getMetadata(false, $topic, 2000)) {
     echo "Failed to get metadata, is broker down?\n";
